@@ -5,6 +5,8 @@ These are notable changes in edx-platform.  This is a rolling list of changes,
 in roughly chronological order, most recent first.  Add your entries at or near
 the top.  Include a label indicating the component affected.
 
+Blades: a11y - Videos will alert screenreaders when the video is over.
+
 LMS: Add a user-visible alert modal when a forums AJAX request fails.
 
 Blades: Add template for checkboxes response to studio. BLD-193.
