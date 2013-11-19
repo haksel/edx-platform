@@ -11,6 +11,13 @@ from .models import Order, PaidCourseRegistration, OrderItem
 from .processors import process_postpay_callback, render_purchase_form_html
 from .exceptions import ItemAlreadyInCartException, AlreadyEnrolledInCourseException, CourseDoesNotExistException
 
+import crum
+from track import contexts
+from track.views import server_track
+from eventtracking import tracker
+
+EVENT_NAME_UPGRADE_PURCHASED = 'edx.user.upgrade.purchased'
+
 log = logging.getLogger("shoppingcart")
 
 
@@ -84,6 +91,11 @@ def postpay_callback(request):
     result = process_postpay_callback(params)
     if result['success']:
         from nose.tools import set_trace; set_trace()
+        if(result['order'].upgrade):
+            # todo make this a real function
+            # so ['order'].user does give us a User
+            # emit_event(EVENT_NAME_UPGRADE_PURCHASED)
+            pass
         return HttpResponseRedirect(reverse('shoppingcart.views.show_receipt', args=[result['order'].id]))
     else:
         return render_to_response('shoppingcart/error.html', {'order': result['order'],
