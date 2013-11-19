@@ -45,6 +45,7 @@ class VerifyView(View):
 
         """
         upgrade = request.GET.get('upgrade', False)
+        # check, and register a "clicked upgrade to verify" event here
 
         # If the user has already been verified within the given time period,
         # redirect straight to the payment -- no need to verify again.
@@ -105,6 +106,7 @@ class VerifiedView(View):
         Handle the case where we have a get request
         """
         upgrade = request.GET.get('upgrade', False)
+        # do a "clicked upgrade" event here
         if CourseEnrollment.enrollment_mode_for_user(request.user, course_id) == 'verified':
             return redirect(reverse('dashboard'))
         verify_mode = CourseMode.mode_for_course(course_id, "verified")
@@ -132,6 +134,7 @@ def create_order(request):
     """
     Submit PhotoVerification and create a new Order for this verified cert
     """
+    # could do a "created order step in upgrade flow" event here
     if not SoftwareSecurePhotoVerification.user_has_valid_or_pending(request.user):
         attempt = SoftwareSecurePhotoVerification(user=request.user)
         b64_face_image = request.POST['face_image'].split(",")[1]
