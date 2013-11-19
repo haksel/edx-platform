@@ -5,7 +5,6 @@ from util.json_request import JsonResponse
 from django.http import HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
-from django.core.urlresolvers import reverse
 from django_future.csrf import ensure_csrf_cookie
 from mitxmako.shortcuts import render_to_response
 from django.http import HttpResponseNotFound
@@ -22,6 +21,8 @@ from xmodule.modulestore.locator import BlockUsageLocator
 
 __all__ = ['checklists_handler']
 
+
+# pylint: disable=unused-argument
 @require_http_methods(("GET", "POST", "PUT"))
 @login_required
 @ensure_csrf_cookie
@@ -85,8 +86,8 @@ def checklists_handler(request, tag=None, course_id=None, branch=None, version_g
             return JsonResponse(expanded_checklist)
         else:
             return HttpResponseBadRequest(
-                ( "Could not save checklist state because the checklist index "
-                  "was out of range or unspecified."),
+                ("Could not save checklist state because the checklist index "
+                 "was out of range or unspecified."),
                 content_type="text/plain"
             )
     else:
