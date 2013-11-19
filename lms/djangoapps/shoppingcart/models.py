@@ -399,6 +399,7 @@ class CertificateItem(OrderItem):
     course_id = models.CharField(max_length=128, db_index=True)
     course_enrollment = models.ForeignKey(CourseEnrollment)
     mode = models.SlugField()
+    upgrade = models.BooleanField()
 
     @receiver(unenroll_done)
     def refund_cert_callback(sender, course_enrollment=None, **kwargs):
@@ -464,7 +465,14 @@ class CertificateItem(OrderItem):
 
         """
         super(CertificateItem, cls).add_to_order(order, course_id, cost, currency=currency)
-        course_enrollment = CourseEnrollment.get_or_create_enrollment(order.user, course_id)
+
+        try:
+            # If a course_enrollment already exists, this is an "upgrade" order
+            course_enrollment = CourseEnrollment.objects.get(user=order.user, course_id=course_id)
+            upgrade = True
+        except ObjectDoesNotExist:
+            course_enrollment = CourseEnrollment.get_or_create_enrollment(order.user, course_id)
+            upgrade = False
 
         # do some validation on the enrollment mode
         valid_modes = CourseMode.modes_for_course_dict(course_id)
@@ -477,7 +485,8 @@ class CertificateItem(OrderItem):
             user=order.user,
             course_id=course_id,
             course_enrollment=course_enrollment,
-            mode=mode
+            mode=mode,
+            upgrade=upgrade,
         )
         item.status = order.status
         item.qty = 1

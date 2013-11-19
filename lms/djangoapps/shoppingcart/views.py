@@ -83,6 +83,7 @@ def postpay_callback(request):
     params = request.POST.dict()
     result = process_postpay_callback(params)
     if result['success']:
+        from nose.tools import set_trace; set_trace()
         return HttpResponseRedirect(reverse('shoppingcart.views.show_receipt', args=[result['order'].id]))
     else:
         return render_to_response('shoppingcart/error.html', {'order': result['order'],
@@ -95,6 +96,7 @@ def show_receipt(request, ordernum):
     Displays a receipt for a particular order.
     404 if order is not yet purchased or request.user != order.user
     """
+    from nose.tools import set_trace; set_trace()
     try:
         order = Order.objects.get(id=ordernum)
     except Order.DoesNotExist:
