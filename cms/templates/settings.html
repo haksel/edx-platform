@@ -69,19 +69,19 @@ require(["domReady!", "jquery", "js/models/settings/course_details", "js/views/s
             <li class="field text is-not-editable" id="field-course-organization">
               <label for="course-organization">${_("Organization")}</label>
               <input title="${_('This field is disabled: this information cannot be changed.')}" type="text" 
-                class="long" id="course-organization" value="[Course Organization]" readonly />
+                class="long" id="course-organization" readonly />
             </li>
 
             <li class="field text is-not-editable" id="field-course-number">
               <label for="course-number">${_("Course Number")}</label>
               <input title="${_('This field is disabled: this information cannot be changed.')}" type="text" 
-                class="short" id="course-number" value="[Course No.]" readonly>
+                class="short" id="course-number" readonly>
             </li>
 
             <li class="field text is-not-editable" id="field-course-name">
               <label for="course-name">${_("Course Name")}</label>
               <input title="${_('This field is disabled: this information cannot be changed.')}" type="text" 
-                class="long" id="course-name" value="[Course Name]" readonly />
+                class="long" id="course-name" readonly />
             </li>
           </ol>
 
@@ -218,7 +218,9 @@ require(["domReady!", "jquery", "js/models/settings/course_details", "js/views/s
                       <img class="course-image" id="course-image" src="${course_image_url}" alt="${_('Course Image')}"/>
                     </span>
 
-                    <span class="msg msg-help">${_("You can manage this image along with all of your other")} <a href='${upload_asset_url}'>${_("files &amp; uploads")}</a></span>
+                    <span class="msg msg-help">
+                    ${_("You can manage this image along with all of your other <a href='{}'>files &amp; uploads</a>").format(upload_asset_url)}
+                    </span>
 
                     % else:
                     <span class="wrapper-course-image">
