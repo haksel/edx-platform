@@ -351,6 +351,17 @@ class CertificateItemTest(ModuleStoreTestCase):
         cart.purchase()
         enrollment = CourseEnrollment.objects.get(user=self.user, course_id=self.course_id)
         self.assertEquals(enrollment.mode, u'verified')
+        self.assert_upgrade_event_was_emitted(user)
+
+    def assert_upgrade_event_was_emitted(self, user):
+        self.mock_server_track.assert_called_once_with(
+            sentinel.request,
+            'stuff here',
+            {
+                'stuff': "stuff"
+            }
+        )
+        self.mock_server_track.reset_mock()
 
     def test_single_item_template(self):
         cart = Order.get_cart_for_user(user=self.user)

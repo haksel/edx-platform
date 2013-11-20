@@ -24,7 +24,7 @@ from xmodule.modulestore.exceptions import ItemNotFoundError
 from course_modes.models import CourseMode
 from mitxmako.shortcuts import render_to_string
 from student.views import course_from_id
-from student.models import CourseEnrollment, unenroll_done
+from student.models import CourseEnrollment, unenroll_done, UserMethods
 
 from verify_student.models import SoftwareSecurePhotoVerification
 
@@ -41,6 +41,8 @@ ORDER_STATUSES = (
 
 # we need a tuple to represent the primary key of various OrderItem subclasses
 OrderItemSubclassPK = namedtuple('OrderItemSubclassPK', ['cls', 'pk'])  # pylint: disable=C0103
+
+EVENT_NAME_USER_UPGRADED = 'edx.user.upgraded'
 
 
 class Order(models.Model):
@@ -512,6 +514,8 @@ class CertificateItem(OrderItem):
                 "Could not submit verification attempt for enrollment {}".format(self.course_enrollment)
             )
 
+        if self.upgrade is True:
+            self.user.emit_event(EVENT_NAME_USER_UPGRADED)
         self.course_enrollment.change_mode(self.mode)
         self.course_enrollment.activate()
 

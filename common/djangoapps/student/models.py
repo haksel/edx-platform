@@ -17,6 +17,12 @@ import json
 import logging
 import uuid
 
+import crum
+
+from track import contexts
+from track.views import server_track
+from eventtracking import tracker
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.signals import user_logged_in, user_logged_out
@@ -35,11 +41,31 @@ from track import contexts
 from track.views import server_track
 from eventtracking import tracker
 
-
 unenroll_done = django.dispatch.Signal(providing_args=["course_enrollment"])
 
 log = logging.getLogger(__name__)
 AUDIT_LOG = logging.getLogger("audit")
+
+class UserMethods(User):
+    def emit_event(self, event_name):
+        """
+        Emits an event
+        """
+
+        context = {
+            'dude': "dude",
+        }
+        try:
+            data = {
+                'stuff': "stuff"
+            }
+            with tracker.get_tracer().context(event_name, context):
+                server_track(crum.get_current_request(), event_name, data)
+        except: # pylint: disable=bare-except
+            if event_name and self.id:
+                log.exception('Unable to emit event for dudestuff')
+    class Meta:
+        proxy=True
 
 
 class UserStanding(models.Model):
