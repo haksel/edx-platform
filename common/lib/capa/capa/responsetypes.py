@@ -947,17 +947,21 @@ class NumericalResponse(LoncapaResponse):
 
 class StringResponse(LoncapaResponse):
     '''
-    This response type allows one or more answers.
+    This response type allows one or more answers. Use `_or_` separator to set
+    more than 1 answer.
 
     Example:
 
         # One answer
-        = answer
+        <stringresponse answer="Michigan">
+          <textline size="20" />
+        </stringresponse >
 
         # Multiple answers
-        = answer_1
-        or= answer_2
-        or= answer_3
+        <stringresponse answer="Martin Luther King_or_Dr. Martin Luther King Jr.">
+          <textline size="20" />
+        </stringresponse >
+
     '''
     response_tag = 'stringresponse'
     hint_tag = 'stringhint'
@@ -965,10 +969,11 @@ class StringResponse(LoncapaResponse):
     required_attributes = ['answer']
     max_inputfields = 1
     correct_answer = []
+    SEPARATOR = '_or_'
 
     def setup_response(self):
         self.correct_answer = [contextualize_text(answer, self.context).strip()
-            for answer in self.xml.get('answer').split('_or_')]
+            for answer in self.xml.get('answer').split(self.SEPARATOR)]
 
     def get_score(self, student_answers):
         '''Grade a string response '''
@@ -988,7 +993,7 @@ class StringResponse(LoncapaResponse):
             name = hxml.get('name')
 
             correct_answer = [contextualize_text(answer, self.context).strip()
-            for answer in hxml.get('answer').split('_or_')]
+            for answer in hxml.get('answer').split(self.SEPARATOR)]
 
             if self.check_string(correct_answer, given):
                 hints_to_show.append(name)
