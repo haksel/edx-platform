@@ -83,7 +83,7 @@ def tabs_handler(request, tag=None, course_id=None, branch=None, version_guid=No
 
                 # get list of existing static tabs in course
                 # make sure they are the same lengths (i.e. the number of passed in tabs equals the number
-                # that we know about) otherwise we can drop some!
+                # that we know about) otherwise we will inadvertently drop some!
                 existing_static_tabs = [t for t in course_item.tabs if t['type'] == 'static_tab']
                 if len(existing_static_tabs) != len(tabs):
                     return JsonResponse(
@@ -106,25 +106,24 @@ def tabs_handler(request, tag=None, course_id=None, branch=None, version_guid=No
                 static_tab_idx = 0
                 for tab in course_item.tabs:
                     if tab['type'] == 'static_tab':
-                        reordered_tabs.append({'type': 'static_tab',
-                                               'name': tab_items[static_tab_idx].display_name,
-                                               'url_slug': tab_items[static_tab_idx].location.name})
+                        reordered_tabs.append(
+                            {'type': 'static_tab',
+                             'name': tab_items[static_tab_idx].display_name,
+                             'url_slug': tab_items[static_tab_idx].location.name,
+                            }
+                        )
                         static_tab_idx += 1
                     else:
                         reordered_tabs.append(tab)
 
                 # OK, re-assemble the static tabs in the new order
                 course_item.tabs = reordered_tabs
-                # Save the data that we've just changed to the underlying
-                # MongoKeyValueStore before we update the mongo datastore.
-                course_item.save()
                 modulestore('direct').update_metadata(course_item.location, own_metadata(course_item))
-                # TODO: above two lines are used for the primitive-save case. Maybe factor them out?
                 return JsonResponse()
             else:
                 raise NotImplementedError('Creating or changing tab content is not supported.')
     elif request.method == 'GET':  # assume html
-        # see tabs have been uninitialized (e.g. supporing courses created before tab support in studio)
+        # see tabs have been uninitialized (e.g. supporting courses created before tab support in studio)
         if course_item.tabs is None or len(course_item.tabs) == 0:
             initialize_course_tabs(course_item)
 
@@ -134,7 +133,7 @@ def tabs_handler(request, tag=None, course_id=None, branch=None, version_guid=No
 
         static_tabs = []
         for static_tab_ref in static_tabs_refs:
-            static_tab_loc = Location(old_location)._replace(category='static_tab', name=static_tab_ref['url_slug'])
+            static_tab_loc = old_location.replace(category='static_tab', name=static_tab_ref['url_slug'])
             static_tabs.append(modulestore('direct').get_item(static_tab_loc))
 
         components = [
@@ -175,7 +174,7 @@ def primitive_delete(course, num):
     # Note for future implementations: if you delete a static_tab, then Chris Dodge
     # points out that there's other stuff to delete beyond this element.
     # This code happens to not delete static_tab so it doesn't come up.
-    primitive_save(course)
+    modulestore('direct').update_metadata(course.location, own_metadata(course))
 
 
 def primitive_insert(course, num, tab_type, name):
@@ -184,11 +183,5 @@ def primitive_insert(course, num, tab_type, name):
     new_tab = {u'type': unicode(tab_type), u'name': unicode(name)}
     tabs = course.tabs
     tabs.insert(num, new_tab)
-    primitive_save(course)
-
-
-def primitive_save(course):
-    "Saves the course back to modulestore."
-    # This code copied from reorder_static_tabs above
-    course.save()
     modulestore('direct').update_metadata(course.location, own_metadata(course))
+

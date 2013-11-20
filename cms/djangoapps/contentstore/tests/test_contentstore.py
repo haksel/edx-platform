@@ -1655,6 +1655,7 @@ class ContentStoreTest(ModuleStoreTestCase):
         test_get_html('course_info')
         test_get_html('checklists')
         test_get_html('assets')
+        test_get_html('tabs')
 
         # settings_details
         resp = self.client.get_html(reverse('settings_details',
@@ -1690,11 +1691,6 @@ class ContentStoreTest(ModuleStoreTestCase):
         self.assertEqual(resp.status_code, 200)
         _test_no_locations(self, resp)
 
-        # tabs_handler (HTML for full page content)
-        url = new_location.url_reverse('tabs')
-        resp = self.client.get_html(url)
-        self.assertEqual(resp.status_code, 200)
-
         # go look at a subsection page
         subsection_location = loc.replace(category='sequential', name='test_sequence')
         resp = self.client.get_html(
@@ -1711,13 +1707,6 @@ class ContentStoreTest(ModuleStoreTestCase):
         self.assertEqual(resp.status_code, 200)
         # TODO: uncomment when edit_unit not using old locations.
         # _test_no_locations(self, resp)
-
-        resp = self.client.get_html(reverse('edit_tabs',
-                                            kwargs={'org': loc.org,
-                                                    'course': loc.course,
-                                                    'coursename': loc.name}))
-        self.assertEqual(resp.status_code, 200)
-        _test_no_locations(self, resp)
 
         def delete_item(category, name):
             """ Helper method for testing the deletion of an xblock item. """
